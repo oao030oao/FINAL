@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><title>吵架結束</title></head>
+<body>
+  <h2>💥 吵架結束！</h2>
+  <h3>主題：{{ topic }}</h3>
+  {% for line in history %}
+    <p>{{ line }}</p>
+  {% endfor %}
+  <br>
+  <a href="{{ url_for('reset') }}">再來一次！</a>
+</body>
+</html>
