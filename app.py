@@ -1,41 +1,36 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask_session import Session
 import google.generativeai as genai
 import os
 
-
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # ========== Gemini API 初始化 ==========
-genai.configure(api_key=GEMINI_API_KEY)
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.0-flash")
-app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "吵架不能沒有記憶")
 
+# ========== Flask 初始化與 Session 設定 ==========
+app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "這是預設秘密金鑰")
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_FILE_DIR"] = "./session_data"
+app.config["SESSION_PERMANENT"] = False
+Session(app)
+
+# ========== 角色提示語 ==========
 role_A_prompt = "你是一位情緒化又固執的人，針對主題請用強烈語氣表達立場："
 role_B_prompt = "你是一位冷靜又強詞奪理的人，請針對主題反駁："
 
+# ========== Gemini 回應函式 ==========
 def generate_reply(prompt_prefix, history):
-    try:
-        prompt = prompt_prefix + "\n" + "\n".join(history)
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
-                max_output_tokens=300
-            )
-        )
-        return response.text.strip()
-    except Exception as e:
-        print(f"⚠️ Gemini 回傳錯誤：{e}")
-        return "⚠️ 發言失敗（API 出錯），請稍後再試"
+    full_prompt = prompt_prefix + "\n" + "\n".join(history)
+    response = model.generate_content(full_prompt)
+    return response.text.strip()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         session["topic"] = request.form["topic"]
-        session["max_rounds"] = int(request.form["max_rounds"])
         session["history"] = [f"主題：{session['topic']}"]
-        session["turn"] = "A"
-        session["count"] = 0
+        session["round"] = 0
         return redirect(url_for("fight"))
     return render_template("index.html")
 
@@ -43,33 +38,23 @@ def index():
 def fight():
     topic = session.get("topic", "無主題")
     history = session.get("history", [])
-    turn = session.get("turn", "A")
-    count = session.get("count", 0)
-    max_rounds = session.get("max_rounds", 5)
+    round_num = session.get("round", 0)
+
+    if round_num >= 5:
+        return render_template("result.html", history=history, topic=topic)
 
     if request.method == "POST":
-        if turn == "A":
-            reply = generate_reply(role_A_prompt, history)
-            history.append(f"角色A：{reply}")
-            session["turn"] = "B"
-        else:
-            reply = generate_reply(role_B_prompt, history)
-            history.append(f"角色B：{reply}")
-            session["turn"] = "A"
-            session["count"] = count + 1
+        a_reply = generate_reply(role_A_prompt, history)
+        history.append(f"角色A：{a_reply}")
 
-        session["history"] = history
+        b_reply = generate_reply(role_B_prompt, history)
+        history.append(f"角色B：{b_reply}")
 
-        if session["count"] >= max_rounds:
-            return redirect(url_for("result"))
-
+        session["history"] = history[-20:]
+        session["round"] = round_num + 1
         return redirect(url_for("fight"))
 
-    return render_template("fight.html", history=history, topic=topic, count=count, max_rounds=max_rounds, turn=turn)
-
-@app.route("/result")
-def result():
-    return render_template("result.html", topic=session.get("topic", ""), history=session.get("history", []))
+    return render_template("fight.html", history=history, topic=topic, round=round_num)
 
 @app.route("/reset")
 def reset():
@@ -77,4 +62,5 @@ def reset():
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
+    os.makedirs("./session_data", exist_ok=True)
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
