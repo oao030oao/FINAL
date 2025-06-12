@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head><title>吵架回合</title></head>
+<head>
+  <title>吵架進行中</title>
+</head>
 <body>
   <h2>主題：{{ topic }}</h2>
-  <h3>第 {{ round + 1 }} 回合</h3>
+  <h3>第 {{ count + 1 }} 輪</h3>
   {% for line in history %}
     <p>{{ line }}</p>
   {% endfor %}
+
   <form method="POST">
-    <button type="submit">下一回合 🔁</button>
+    <button type="submit">下一步：角色{{ "A" if turn == "A" else "B" }} 發言 🔁</button>
   </form>
   <br>
   <a href="{{ url_for('reset') }}">🔄 重來</a>

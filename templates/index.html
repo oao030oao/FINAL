@@ -6,12 +6,17 @@
 </head>
 <body>
   <h1>🎭 AI 吵架模擬器</h1>
-  <h3>請輸入一個吵架主題</h3>
-  
   <form method="POST" action="/">
-    <label for="topic">主題：</label>
-    <input type="text" name="topic" id="topic" required>
-    <br><br>
+    <label for="topic">請輸入吵架主題：</label><br>
+    <input type="text" name="topic" id="topic" required><br><br>
+
+    <label for="max_rounds">吵幾輪？</label>
+    <select name="max_rounds" id="max_rounds">
+      <option value="3">3 輪</option>
+      <option value="5" selected>5 輪</option>
+      <option value="10">10 輪</option>
+    </select><br><br>
+
     <button type="submit">開始吵架 🚀</button>
   </form>
 </body>
