@@ -16,8 +16,8 @@ app.config["SESSION_PERMANENT"] = False
 Session(app)
 
 # ========== 角色提示語 ==========
-role_A_prompt = "你是一位情緒化又固執的人。請用「角色A：」開頭強烈表達對主題的立場："
-role_B_prompt = "你是一位冷靜又強詞奪理的人。請用「角色B：」開頭冷靜反駁對方觀點："
+role_A_prompt = "你是一位情緒化又固執的人，針對主題請用強烈語氣表達立場："
+role_B_prompt = "你是一位冷靜又強詞奪理的人，請針對主題反駁："
 
 # ========== Gemini 回應函式 ==========
 def generate_reply(prompt_prefix, history):
