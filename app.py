@@ -7,7 +7,6 @@ import os
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # ========== Gemini API 初始化 ==========
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "吵架不能沒有記憶")
@@ -18,7 +17,7 @@ role_B_prompt = "你是一位冷靜又強詞奪理的人，請針對主題反駁
 def generate_reply(prompt_prefix, history):
     try:
         prompt = prompt_prefix + "\n" + "\n".join(history)
-        model = genai.GenerativeModel("gemini-1.5-pro")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
@@ -80,10 +79,3 @@ def reset():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
-
-
-    
-
-
-
