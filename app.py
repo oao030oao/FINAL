@@ -4,7 +4,10 @@ import os
 
 
 # 使用 Render 環境變數（建議這樣做）
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "吵架不能沒有記憶")
