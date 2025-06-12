@@ -3,9 +3,9 @@ import google.generativeai as genai
 import os
 
 
-# 使用 Render 環境變數（建議這樣做）
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# ========== Gemini API 初始化 ==========
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
 
@@ -80,3 +80,10 @@ def reset():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+
+
+    
+
+
+
